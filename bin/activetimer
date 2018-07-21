@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+DIR="${0%/*}"
+MARKFILE="$HOME/.cache/activetimer"
+UPTIMEFILE="/proc/uptime"
+
+# Resets the counter.
+mark () {
+  mkdir -p $(dirname "$MARKFILE")
+  touch $MARKFILE
+}
+
+# Echo the current uptime, if available. (eg, "23")
+get_uptime () {
+  if [ -e "$UPTIMEFILE" ]; then
+    cat "$UPTIMEFILE" | sed 's/\..*$//'
+  fi
+}
+
+# Echoes number of seconds. (eg, "23")
+get_seconds () {
+  NOW=$(date +"%s")
+  UPTIME=$(get_uptime)
+
+  if [ -e "$MARKFILE" ]; then
+    THEN=$(stat -c "%Y" $MARKFILE)
+    DELTA=$(echo $NOW - $THEN | bc)
+
+    # If it's an old markfile, use the uptime
+    if [ -n "$UPTIME" ] && (( $UPTIME < $DELTA )); then
+      echo $UPTIME
+    else
+      echo $DELTA
+    fi
+  elif [ -n "$UPTIME" ]; then
+    echo $UPTIME
+  fi
+}
+
+# Echoes duration as a string. ("2h 32m")
+get_duration () {
+  SECS=$(get_seconds)
+  if [ -n "$SECS" ]; then
+    if (( $SECS >= 3600 )); then
+      echo $SECS | awk '{print int($1/3600)"h "int(($1%3600)/60)"m"}'
+    elif (( $SECS >= 60 )); then
+      echo $SECS | awk '{print int(($1%3600)/60)"m"}'
+    else
+      echo "${SECS}s"
+    fi
+  fi
+}
+
+# Run
+case $1 in
+  start|mark)
+    mark
+    ;;
+
+  seconds)
+    get_seconds
+    ;;
+
+  duration)
+    get_duration
+    ;;
+
+  *)
+    echo "usage: $0 {start|seconds|duration}"
+    ;;
+esac
