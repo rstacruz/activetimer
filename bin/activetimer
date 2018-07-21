@@ -5,6 +5,7 @@ DIR="${0%/*}"
 MARK_FILE="$HOME/.cache/activetimer"
 UPTIME_FILE="/proc/uptime"
 NOTIFICATION_INTERVAL="1500"
+POLL_INTERVAL="30"
 
 # Resets the counter.
 mark () {
@@ -54,7 +55,7 @@ get_duration () {
   fi
 }
 
-# Poll to check if we should send a notification right now
+# Poll to check if we should send a notification right now.
 notify_poll () {
   interval="$1"
   current="$(get_seconds)"
@@ -66,6 +67,7 @@ notify_poll () {
   # TODO: run notification when it matches 1h...(1h+30s)
 }
 
+# Shows a notification.
 # send_notification "activetimer" "You're doing great"
 send_notification () {
   title="$1"
@@ -81,6 +83,15 @@ send_notification () {
     # AppleScript
     osascript -e "display notification \"$message\" with title \"$title\""
   fi
+}
+
+# Check periodically if we have a notification to show.
+# Press ctrl-c to stop.
+start_poll () {
+  while true; do
+    notify_poll
+    sleep $POLL_INTERVAL
+  done
 }
 
 # Run
@@ -106,7 +117,7 @@ case $1 in
     ;;
 
   watch)
-    echo "TODO"
+    start_poll
     ;;
 
   *)
