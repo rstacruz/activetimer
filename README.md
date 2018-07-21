@@ -2,20 +2,47 @@
 
 > Track how long you've been working
 
+activetimer is a shell script.
+
+## Install
+
+Use [bin/activetimer](bin/activetimer) however you like. You can also install me via npm (`npm install -g rstacruz/activetimer` - it's a shell script, npm is only used as an installer).
+
 ## Usage
 
 ```sh
 # Mark the current time as you started working
 activetimer start
+```
 
-# After some time, show how long you've been working since you typed
-# the command above
+```sh
+# After some time, show how long you've been working since
+# you've typed the command above
 activetimer duration  # => `2m 4s`
 ```
 
+## Practical usage
+
+**activetimer** is geared towards those who like to DIY their own desktop experience. It has no GUI, but you can integrate it into your desktop into whatever way you like.
+
+1. **Indicator** &mdash; Show `activetimer duration` in your desktop somewhere. You can do this in many ways:
+
+  - [BitBar](https://bitbar.com/) (macOS)
+  - [GeekTool](https://www.tynsoe.org/v2/geektool/) (macOS)
+  - [Conky](https://github.com/brndnmtthws/conky) (Linux)
+  - [Polybar](https://github.com/jaagr/polybar) (Linux)
+
+2. **Auto-reset** &mdash; Run `activetimer start` after your computer gets out of screensaver mode. This will reset the work timer after you've been away from your computer. Here's a few ways to do it:
+
+  - [Sleepwatcher](http://brewformulas.org/Sleepwatcher) (macOS)
+  - [xautolock](https://linux.die.net/man/1/xautolock) (Linux)
+
+3. **Manual reset** _(Optional)_ &mdash; you can also make a shortcut to `activetimer start`, preferrably when you click on the indicator that you've set up in step 1.
+
+
 ## Thanks
 
-**activetimer** © 2018+, Rico Sta. Cruz. Released under the [MIT] License.<br>
+**activetimer** © 2018, Rico Sta. Cruz. Released under the [MIT] License.<br>
 Authored and maintained by Rico Sta. Cruz with help from contributors ([list][contributors]).
 
 > [ricostacruz.com](http://ricostacruz.com) &nbsp;&middot;&nbsp;
