@@ -2,59 +2,68 @@
 
 # Configuration:
 DIR="${0%/*}"
-MARKFILE="$HOME/.cache/activetimer"
-UPTIMEFILE="/proc/uptime"
+MARK_FILE="$HOME/.cache/activetimer"
+UPTIME_FILE="/proc/uptime"
+NOTIFICATION_INTERVAL="1500"
 
 # Resets the counter.
 mark () {
-  mkdir -p $(dirname "$MARKFILE")
-  touch $MARKFILE
+  mkdir -p $(dirname "$MARK_FILE")
+  touch $MARK_FILE
 }
 
 # Echo the current uptime, if available. (eg, "23")
 get_uptime () {
-  if [ -e "$UPTIMEFILE" ]; then
-    cat "$UPTIMEFILE" | sed 's/\..*$//'
+  if [ -e "$UPTIME_FILE" ]; then
+    cat "$UPTIME_FILE" | sed 's/\..*$//'
   fi
 }
 
 # Echoes number of seconds. (eg, "23")
 get_seconds () {
-  NOW=$(date +"%s")
-  UPTIME=$(get_uptime)
+  now=$(date +"%s")
+  uptime=$(get_uptime)
 
-  if [ -e "$MARKFILE" ]; then
-    THEN=$(stat -c "%Y" $MARKFILE)
-    DELTA=$(echo $NOW - $THEN | bc)
+  if [ -e "$MARK_FILE" ]; then
+    then=$(stat -c "%Y" $MARK_FILE)
+    delta=$(echo $now - $then | bc)
 
     # If it's an old markfile, use the uptime
-    if [ -n "$UPTIME" ] && (( $UPTIME < $DELTA )); then
-      echo $UPTIME
+    if [ -n "$uptime" ] && (( $uptime < $delta )); then
+      echo $uptime
     else
-      echo $DELTA
+      echo $delta
     fi
-  elif [ -n "$UPTIME" ]; then
-    echo $UPTIME
+  elif [ -n "$uptime" ]; then
+    echo $uptime
   fi
 }
 
 # Echoes duration as a string. ("2h 32m")
 get_duration () {
-  SECS=$(get_seconds)
-  if [ -n "$SECS" ]; then
-    if (( $SECS >= 3600 )); then
-      echo $SECS | awk '{print int($1/3600)"h "int(($1%3600)/60)"m"}'
-    elif (( $SECS >= 60 )); then
-      echo $SECS | awk '{print int(($1%3600)/60)"m"}'
+  secs="$(get_seconds)"
+
+  if [ -n "$secs" ]; then
+    if (( $secs >= 3600 )); then
+      echo $secs | awk '{print int($1/3600)"h "int(($1%3600)/60)"m"}'
+    elif (( $secs >= 60 )); then
+      echo $secs | awk '{print int(($1%3600)/60)"m"}'
     else
-      echo "${SECS}s"
+      echo "${secs}s"
     fi
   fi
 }
 
-# Later
+# Poll to check if we should send a notification right now
 notify_poll () {
   interval="$1"
+  current="$(get_seconds)"
+
+  if [ -z "$current" ]; then
+    exit 0
+  fi
+
+  # TODO: run notification when it matches 1h...(1h+30s)
 }
 
 # send_notification "activetimer" "You're doing great"
@@ -90,6 +99,14 @@ case $1 in
 
   test)
     send_notification "activetimer" "You're doing great"
+    ;;
+
+  notify-poll)
+    notify_poll "$2"
+    ;;
+
+  watch)
+    echo "TODO"
     ;;
 
   *)
