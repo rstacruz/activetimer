@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# Configuration:
 DIR="${0%/*}"
 MARKFILE="$HOME/.cache/activetimer"
 UPTIMEFILE="/proc/uptime"
@@ -51,6 +52,28 @@ get_duration () {
   fi
 }
 
+# Later
+notify_poll () {
+  interval="$1"
+}
+
+# send_notification "activetimer" "You're doing great"
+send_notification () {
+  title="$1"
+  message="$2"
+
+  if which notify-send &>/dev/null; then
+    # Linux notify-send
+    notify-send "$title" "$message"
+  elif which terminal-notifier &>/dev/null; then
+    # https://github.com/julienXX/terminal-notifier
+    terminal-notifier -message "$message" -title "$title"
+  elif which osascript &> /dev/null; then
+    # AppleScript
+    osascript -e "display notification \"$message\" with title \"$title\""
+  fi
+}
+
 # Run
 case $1 in
   start|mark)
@@ -63,6 +86,10 @@ case $1 in
 
   duration)
     get_duration
+    ;;
+
+  test)
+    send_notification "activetimer" "You're doing great"
     ;;
 
   *)
